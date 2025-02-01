@@ -1,5 +1,0 @@
-method,execution_time,results_count
-KD-Tree + LSH,0.05901765823364258,0
-Quad Tree + LSH,0.07901811599731445,3
-Range Tree + LSH,0.0879664421081543,3
-R-Tree + LSH,0.1279892921447754,3

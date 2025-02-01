@@ -3,7 +3,7 @@ from sklearn.preprocessing import MinMaxScaler
 from pyqtree import Index 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
-import time
+
 
 
 # Step 1: Preprocess the Dataset
@@ -72,19 +72,20 @@ def query_lsh(vectorizer, nbrs, query_text, filtered_data, n_results):
 
 
 # Interactive Query System for Quad Tree + LSH
-def interactive_query_system_quad(file_path):
+def interactive_query_system_quad(file_path, user_inputs):
     coffee_data, scaler = preprocess_data(file_path)
 
     print("\nWelcome to the Coffee Reviews Query System with Quad Tree + LSH!")
 
-    # User Input for Quad Tree Filtering
-    start_year = int(input("Enter the start year: "))
-    end_year = int(input("Enter the end year: "))
-    min_rating = float(input("Enter the minimum review rating: "))
-    min_price = float(input("Enter the minimum price per 100g: "))
-    max_price = float(input("Enter the maximum price per 100g: "))
-    country = input("Enter the country of origin: ")
-    n_results = int(input("Enter the number of top results to return: "))
+    # Extract user inputs
+    start_year = user_inputs["start_year"]
+    end_year = user_inputs["end_year"]
+    min_rating = user_inputs["min_rating"]
+    min_price = user_inputs["min_price"]
+    max_price = user_inputs["max_price"]
+    country = user_inputs["country"]
+    n_results = user_inputs["n_results"]
+    query_text = user_inputs["query_text"]
 
     # Filter the dataset
     filtered_data = coffee_data[
@@ -101,7 +102,7 @@ def interactive_query_system_quad(file_path):
 
     if filtered_data.empty:
         print("No results match your Quad Tree filter criteria. Please try again.")
-        return
+        return pd.DataFrame()
 
     # Build Quad Tree
     quad_tree = build_quad_tree(filtered_data)
@@ -116,11 +117,8 @@ def interactive_query_system_quad(file_path):
 
     # Query Quad Tree
     print("\nQuerying Quad Tree...")
-    start_time = time.time()
+   
     quad_results = query_quad_tree(quad_tree, filtered_data, query_point, query_radius=0.1)
-    query_time = time.time() - start_time
-    print(f"Quad Tree Query Time: {query_time:.4f} seconds")
-
     if quad_results.empty:
         print("No Quad Tree results found.")
         return
@@ -139,11 +137,12 @@ def interactive_query_system_quad(file_path):
 
     if lsh_results.empty:
         print("No LSH results found within Quad Tree filtered results.")
-        return
+        return pd.DataFrame()
 
     print("\nLSH Results:")
     print(lsh_results[['name', 'original_100g_USD', 'original_rating', 'original_review_year', 'loc_country', 'review']].to_string(index=False))
 
+    return lsh_results
 
 # Main Execution
 if __name__ == "__main__":
